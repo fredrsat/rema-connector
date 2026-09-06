@@ -4,6 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { rema } from "./rema-cli.js";
+import { getCampaigns } from "./rema-api.js";
 
 function jsonResult(value: unknown) {
   return { content: [{ type: "text" as const, text: JSON.stringify(value, null, 2) }] };
@@ -26,7 +27,7 @@ export async function runMcpServer(): Promise<void> {
     "search_products",
     {
       description:
-        "Search REMA 1000's product catalog with current prices. Norwegian terms work best (e.g. 'melk'). Results include GTIN/EAN — comparable with other stores via the kassalapp connector's compare_prices_by_ean.",
+        "Search REMA 1000's product catalog. Norwegian terms work best (e.g. 'melk'). NOTE: results have NO prices (REMA does not expose catalog prices) — only GTIN/EAN, name and packing size. For REMA prices use get_campaigns (sale prices), get_offers (personal price cuts) or get_receipt (observed prices from purchases).",
       inputSchema: {
         query: z.string().describe("Search term"),
         rows: z.number().int().min(1).max(100).optional().describe("Max results, default 20"),
@@ -49,10 +50,13 @@ export async function runMcpServer(): Promise<void> {
   server.registerTool(
     "get_campaigns",
     {
-      description: "List current REMA 1000 sales campaigns with their products.",
-      inputSchema: {},
+      description:
+        "List current REMA 1000 sales campaigns with product-level sale prices and before-prices (the weekly 'Superpriser' flyer). This is REMA's main public price surface — the catalog search has no prices.",
+      inputSchema: {
+        type: z.string().optional().describe("Campaign type, default 'SP' (Superpriser)"),
+      },
     },
-    async () => jsonResult(await rema(["campaigns", "list"])),
+    async ({ type }) => jsonResult(await getCampaigns(type)),
   );
 
   server.registerTool(
