@@ -58,3 +58,7 @@ som mangler ferske REMA-priser.
 
 Connectoren har bare `mcp` og `status` — all annen terminalbruk gjøres
 direkte med `rema`-CLI-en, som er utmerket i seg selv (`rema --help`).
+
+## Lisens
+
+[MIT](LICENSE)
