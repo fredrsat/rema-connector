@@ -1,0 +1,24 @@
+# rema-connector
+
+> MCP-server som gir AI-agenter tilgang til REMA 1000 (Æ-appen): produktsøk med priser, personlige tilbud, kampanjer, kvitteringer og handlelister — kun for personlig bruk mot egen konto.
+
+Connectoren er et rent MCP-lag oppå [rema1000-cli](https://github.com/Alfredvc/rema1000-cli), en Rust-CLI som håndterer autentiseringen (browser-login med telefonnummer, automatisk token-fornyelse til `~/.rema1000/tokens.json`). Agenten kan ikke logge inn selv — det gjøres i terminalen med `rema auth login`. Binæren finnes via `REMA_CLI_PATH`, `~/.local/bin/rema` eller `PATH`. API-et er Æ-appens private API og kan endres uten varsel.
+
+Stack: TypeScript (ESM), Node >= 18, `@modelcontextprotocol/sdk`, zod, vitest. Verktøyene dekker auth-status, produktsøk (med GTIN/EAN), tilbud, kampanjer, kjøpshistorikk/kvitteringer på linjenivå og full handleliste-administrasjon (sletting krever bekreftelsesstreng). Kvitteringene er ekte observerte priser — nyttig sammen med kassalapp-connector, som mangler ferske REMA-priser.
+
+## Docs
+
+- [README](https://github.com/fredrsat/rema-connector/blob/main/README.md): oppsett (rema1000-cli, innlogging, MCP-registrering) og oversikt over alle verktøyene
+- [LICENSE](https://github.com/fredrsat/rema-connector/blob/main/LICENSE): MIT
+
+## Source
+
+- [src/index.ts](https://github.com/fredrsat/rema-connector/blob/main/src/index.ts): inngangspunkt (`mcp` og `status`)
+- [src/server.ts](https://github.com/fredrsat/rema-connector/blob/main/src/server.ts): MCP-serveren og alle verktøydefinisjonene
+- [src/rema-cli.ts](https://github.com/fredrsat/rema-connector/blob/main/src/rema-cli.ts): wrapper som finner og kjører `rema`-binæren
+- [src/rema-api.ts](https://github.com/fredrsat/rema-connector/blob/main/src/rema-api.ts): typer og hjelpere for CLI-ens JSON-utdata
+
+## Optional
+
+- [tests/rema-cli.test.ts](https://github.com/fredrsat/rema-connector/blob/main/tests/rema-cli.test.ts): tester for CLI-wrapperen
+- [package.json](https://github.com/fredrsat/rema-connector/blob/main/package.json): scripts og avhengigheter
